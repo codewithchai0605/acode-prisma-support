@@ -3,7 +3,7 @@
     "id": "acode.prisma-support",
     "name": "Prisma Mode Support",
     "main": "main.js",
-    "version": "1.0.1",
+    "version": "1.0.0",
     "repository": "https://github.com/codewithchai0605/acode-prisma-support",
     "icon": "icon.png",
     "minVersionCode": 290,
