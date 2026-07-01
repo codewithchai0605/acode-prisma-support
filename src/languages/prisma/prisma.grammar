@@ -1,0 +1,100 @@
+@top Program { (ModelBlock | EnumBlock | ConfigBlock | LineComment)* }
+
+@skip { space }
+
+@dialects { multi }
+
+// 1. Model, Type, and View Blocks (These contain Fields and Attributes)
+ModelBlock {
+  (kwModel | kwType | kwView) Identifier "{" (ModelField | BlockAttribute | LineComment)* "}"
+}
+
+// 2. Enum Blocks (These ONLY contain EnumValues)
+EnumBlock {
+  kwEnum Identifier "{" (EnumValue | LineComment)* "}"
+}
+
+// 3. Config Blocks for datasources/generators (These contain Assignments)
+ConfigBlock {
+  (kwDatasource | kwGenerator) Identifier String? "{" (Assignment | LineComment)* "}"
+}
+
+// Define what a field looks like in a model
+ModelField {
+  FieldName FieldType Attribute*
+}
+
+// Define what an assignment looks like in a config block
+Assignment {
+  FieldName "=" FieldValue
+}
+
+FieldType {
+  Type ("(" String ")")? ArrayMarker? ("?" | "!")?
+}
+
+ConfigArrayValue {
+  String |
+  Number |
+  Identifier
+}
+
+FieldValue {
+  String |
+  Number |
+  FunctionCall |
+  "[" ConfigArrayValue ("," ConfigArrayValue)* "]"
+}
+
+FunctionCall {
+  Identifier "(" (FunctionArg ("," FunctionArg)*)? ")"
+}
+
+FunctionArg {
+  String |
+  Number |
+  FunctionCall |
+  Identifier |
+  AttrKey ":" AttrArgValue |
+  AttrKey ":" "[" AttrArgValue ("," AttrArgValue)* "]" |
+  "[" AttrArgValue ("," AttrArgValue)* "]"
+}
+
+AttrArgValue { AttrValue }
+
+Attribute {
+  AttributeName ("(" (FunctionArg ("," FunctionArg)*)? ")")?
+}
+
+BlockAttribute {
+  BlockAttrName ("(" (FunctionArg ("," FunctionArg)*)? ")")?
+}
+
+@external tokens prismaTokens from "./tokens" {
+  LineComment,
+  Identifier,
+  FieldName,
+  Type,
+  EnumValue,
+  AttributeName,
+  BlockAttrName,
+  String,
+  Number,
+  ArrayMarker,
+  AttrKey,
+  AttrValue
+}
+
+@tokens {
+  kwModel { "model" }
+  kwEnum { "enum" }
+  kwType { "type" }
+  kwView { "view" }
+  kwDatasource { "datasource" }
+  kwGenerator { "generator" }
+  
+  "@" "@@" "{" "}" "(" ")" "[" "]" "," ":" "=" "?"
+  "!" "." "|" "&"
+  space { $[ \t\n\r]+ }
+}
+
